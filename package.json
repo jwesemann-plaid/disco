@@ -1,0 +1,27 @@
+{
+  "name": "disco",
+  "version": "1.0.0",
+  "description": "Plaiderdays July 2019",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel index.js -d dist",
+    "start": "npm run build && nodemon dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.plaid.com/jwesemann/disco.git"
+  },
+  "author": "Plaid",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "1.18.x",
+    "express": "^4.16.4",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "nodemon": "^1.18.10"
+  }
+}
