@@ -2,10 +2,11 @@
   "name": "disco",
   "version": "1.0.0",
   "description": "Plaiderdays July 2019",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "babel index.js -d dist",
-    "start": "npm run build && nodemon dist/index.js"
+    "start": "nodemon --watch index.js --exec npm run serve",
+    "serve": "npm run build && node dist/index.js"
   },
   "repository": {
     "type": "git",
