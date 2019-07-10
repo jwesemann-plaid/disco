@@ -15,7 +15,7 @@
   "author": "Plaid",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "1.18.x",
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "request": "^2.88.0"
   },
