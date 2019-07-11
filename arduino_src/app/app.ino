@@ -20,6 +20,13 @@ pagerduty-alert/ (resolve) => PAGERDUTY_RESOLVE
 burrito-alert/ => BURRITO
 */
 
+
+struct Color {
+  int red;
+  int green;
+  int blue;
+};
+
 enum COMMAND_ENUM { IDLE, PAGERDUTY_TRIGGER, PAGERDUTY_ACKNOWLEDGE, PAGERDUTY_RESOLVE, BURRITO, DISCO_START, DISCO_STOP, DEBUG};
 const String COMMANDS[8] = {"IDLE", "PAGERDUTY_TRIGGER","PAGERDUTY_ACKNOWLEDGE", "PAGERDUTY_RESOLVE", "BURRITO", "DISCO_START", "DISCO_STOP", "DEBUG"};
 
@@ -121,19 +128,19 @@ void loop(void) {
     } else {
       switch (command) {
         case PAGERDUTY_TRIGGER:
-          twinkle();
+          breathe("red");
           break;
         case PAGERDUTY_ACKNOWLEDGE:
-          twinkle();
+          breathe("yellow");
           break;
         case PAGERDUTY_RESOLVE:
-          twinkle();
+          breathe("green");
           break;
         case BURRITO:
-          rainbow();
+          spinning("red");
           break;
         case DEBUG:
-          rainbow();
+          twinkleRed();
           break;
         default:
           break;
@@ -282,4 +289,125 @@ void rainbow() {
       delay(50); // Pause before next pass through loop
     }
   }
+}
+
+void breathe(String color) {
+  Color selectedColor = selectColor(color);
+  
+  float MaximumBrightness = 255;
+  float SpeedFactor = 0.008;
+  float StepDelay = 5;
+  
+  // Make the lights breathe
+  for (int i = 0; i < 65535; i++) {
+    // Intensity will go from 10 - MaximumBrightness in a "breathing" manner
+    float intensity = MaximumBrightness /2.0 * (1.0 + sin(SpeedFactor * i));
+    strip.setBrightness(intensity);
+    // Now set every LED to that color
+    for (int ledNumber=0; ledNumber<NEOPIXEL_PIXELS; ledNumber++) {
+    strip.setPixelColor(ledNumber, selectedColor.red, selectedColor.green, selectedColor.blue);
+    }
+    
+    strip.show();
+    delay(StepDelay);
+  }
+}
+
+void spinning(String color) {
+  Color selectedColor = selectColor(color);
+
+  for (int i = 0; i < 6; i++) {
+    strip.clear(); // Set all pixel colors to 'off'
+    
+    for (int j = 0; j < NEOPIXEL_PIXELS; j++) {
+      int indexTurnOff;
+      int indexLargeDim;
+      int indexSmallDim;
+
+    //It ain't pretty but it works.
+      if (j == 0) {
+        indexTurnOff = NEOPIXEL_PIXELS - 3;
+        indexLargeDim = NEOPIXEL_PIXELS - 2;
+        indexSmallDim = NEOPIXEL_PIXELS - 1;
+      } else if (j == 1) {
+        indexTurnOff = NEOPIXEL_PIXELS - 2;
+        indexLargeDim = NEOPIXEL_PIXELS - 1;
+        indexSmallDim = j - 1;
+      } else if (j == 2) {
+        indexTurnOff = NEOPIXEL_PIXELS - 1;
+        indexLargeDim = j - 2;
+        indexSmallDim = j - 1;
+      } else {
+        indexTurnOff = j - 3;
+        indexLargeDim = j - 2;
+        indexSmallDim = j - 1;
+      }
+      strip.setPixelColor(indexTurnOff, strip.Color(0, 0, 0));
+      strip.setPixelColor(indexLargeDim, strip.Color(selectedColor.red / 10, selectedColor.green / 10, selectedColor.blue / 10));
+      strip.setPixelColor(indexSmallDim, strip.Color(selectedColor.red / 2, selectedColor.green / 2, selectedColor.blue / 2));
+      strip.setPixelColor(j, strip.Color(selectedColor.red, selectedColor.green, selectedColor.blue));
+      strip.show();   // Send the updated pixel colors to the hardware.
+      delay(80); // Pause before next pass through loop
+    }
+  }
+}
+
+//(received_string.indexOf("PAGERDUTY_TRIGGER") > -1) 
+Color selectColor(String selectedColor) {
+  Color color;
+  color.red = 0;
+  color.green = 0;
+  color.blue = 0;
+  if ( selectedColor.indexOf("red") > -1) {
+    color.red = 255;
+  } else if ( selectedColor.indexOf("green") > -1) {
+    color.green = 255;
+  } else if ( selectedColor.indexOf("yellow") > -1) {
+    color.red = 255;
+    color.green = 255;
+  } else if ( selectedColor.indexOf("blue") > -1) {
+    color.blue = 255;
+  } else if ( selectedColor.indexOf("indigo") > -1) {
+    color.red = 75;
+    color.blue = 130;
+  } else if ( selectedColor.indexOf("orange") > -1) {
+    color.red = 255;
+    color.green = 127;
+  } else {
+    //White
+    color.red = 255;
+    color.green = 255;
+    color.blue = 255;
+  }
+  return color;
+}
+
+
+//Testing
+void twinkleRed() {
+  float redStates[NEOPIXEL_PIXELS];
+  float fadeRate = 0.96;
+
+  if (random(20) == 1) {
+    uint16_t i = random(NEOPIXEL_PIXELS);
+    if (redStates[i] < 1) {
+      redStates[i] = random(256);
+    }
+  }
+  
+  for(uint16_t l = 0; l < NEOPIXEL_PIXELS; l++) {
+    if (redStates[l] > 1) {
+      strip.setPixelColor(l, redStates[l], 0, 0);
+      
+      if (redStates[l] > 1) {
+        redStates[l] = redStates[l] * fadeRate;
+      } else {
+        redStates[l] = 0;
+      }
+    } else {
+      strip.setPixelColor(l, 0, 0, 0);
+    }
+  }
+  strip.show();
+  delay(10);
 }
