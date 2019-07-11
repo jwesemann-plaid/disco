@@ -125,10 +125,15 @@ void loop(void) {
           breathe("green");
           break;
         case BURRITO:
-          spinning("red");
+          rainbow();
           break;
         case DEBUG:
-          twinkleRed();
+          spinning("red");
+          spinning("orange");
+          spinning("yellow");
+          spinning("green");
+          spinning("blue");
+          spinning("indigo");
           break;
         default:
           break;
@@ -146,7 +151,21 @@ void loop(void) {
 
   // disco start will keep lights going until disco stop is received
   if (command == DISCO_START) {
-    rainbow();
+    int twinkle_millis = millis();
+    while (millis() - twinkle_millis <= 5000) {
+      twinkle();
+    }
+    int rainbow_millis = millis();
+    while (millis() - rainbow_millis <= 5000) {
+      rainbow();
+    }
+    spinning("red");
+    spinning("orange");
+    spinning("yellow");
+    spinning("green");
+    spinning("blue");
+    spinning("indigo");
+    
     neopixel_busy = true;
   } else if (command == DISCO_STOP) {
     for(uint16_t l = 0; l < NEOPIXEL_PIXELS; l++) {
@@ -292,11 +311,11 @@ void breathe(String color) {
   Color selectedColor = selectColor(color);
   
   float MaximumBrightness = 255;
-  float SpeedFactor = 0.008;
+  float SpeedFactor = 0.03;
   float StepDelay = 5;
   
   // Make the lights breathe
-  for (int i = 0; i < 65535; i++) {
+  for (int i = 0; i < 200; i++) {
     // Intensity will go from 10 - MaximumBrightness in a "breathing" manner
     float intensity = MaximumBrightness /2.0 * (1.0 + sin(SpeedFactor * i));
     strip.setBrightness(intensity);
