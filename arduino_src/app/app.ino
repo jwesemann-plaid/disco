@@ -97,19 +97,7 @@ void loop(void) {
   */
   
   // start/stop neopixel lighting routines
-  if (neopixel_busy) {
-    // disco start will keep lights going until disco stop is received
-    if (command == DISCO_START) {
-      rainbow();
-      return;
-    } else if (command == DISCO_STOP) {
-      for(uint16_t l = 0; l < NEOPIXEL_PIXELS; l++) {
-        strip.setPixelColor(l, 0, 0, 0);
-      }
-      neopixel_busy = false;
-      return;
-    }
-
+  if (neopixel_busy && command != DISCO_START) {
     // all other commands stop after some fixed interval   
     if (current_millis - neopixel_transition_millis >= neopixel_busy_interval) {
       neopixel_busy = false;
@@ -143,20 +131,29 @@ void loop(void) {
              command == PAGERDUTY_ACKNOWLEDGE ||
              command == PAGERDUTY_RESOLVE ||
              command == BURRITO ||
-             command == DISCO_START ||
-             command == DISCO_STOP ||
              command == DEBUG) {
       Serial.println("starting a neopixel routine!");
       neopixel_transition_millis = millis();
       neopixel_busy = true;
   }
 
+  // disco start will keep lights going until disco stop is received
+  if (command == DISCO_START) {
+    rainbow();
+    neopixel_busy = true;
+  } else if (command == DISCO_STOP) {
+    for(uint16_t l = 0; l < NEOPIXEL_PIXELS; l++) {
+      strip.setPixelColor(l, 0, 0, 0);     
+    }
+    neopixel_busy = false;
+    command = IDLE;
+  }
+
   // pop off items from the command queue and handle them
-  if (neopixel_busy || command_queue.isEmpty()) {
+  if ((neopixel_busy && command != DISCO_START) || command_queue.isEmpty()) {
     return;
   } else {
     command = command_queue.dequeue();
-    Serial.print("popping off: " + command);
     return;
   }
 }
